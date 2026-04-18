@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Crop Recommendation</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#081c15;
+color:white;
+text-align:center;
+}
+
+/* NAVBAR */
+
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 60px;
+background:#020617;
+}
+
+.logo{
+font-size:22px;
+font-weight:600;
+color:#4ade80;
+}
+
+nav ul{
+display:flex;
+gap:30px;
+list-style:none;
+}
+
+nav a{
+color:white;
+text-decoration:none;
+}
+
+.login-btn{
+background:#22c55e;
+padding:8px 18px;
+border-radius:20px;
+}
+
+/* RESULT CARD */
+
+.container{
+margin-top:60px;
+display:flex;
+justify-content:center;
+}
+
+.result-card{
+background:#0b2e1f;
+padding:40px;
+border-radius:20px;
+width:420px;
+text-align:center;
+}
+
+.result-card h2{
+margin-bottom:20px;
+}
+
+.result-card h1{
+color:#4ade80;
+margin-bottom:20px;
+}
+
+button{
+margin-top:20px;
+padding:12px 30px;
+border:none;
+border-radius:25px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo">🌿 PhytoScan</div>
+
+<ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/crop">Crop Planner</a></li>
+        <!-- MARKET PRICE FEATURE START -->
+        <li><a href="/market">Market Price</a></li>
+        <!-- MARKET PRICE FEATURE END -->
+        <li><a class="login-btn" href="/login">Login</a></li>
+</ul>
+
+</nav>
+
+<h1 style="margin-top:40px;">🌾 Crop Recommendation Result</h1>
+
+<div class="container">
+
+<div class="result-card">
+
+<h2>Location: {{location}}</h2>
+
+<h1>Recommended Crop</h1>
+
+<h2>{{crop}}</h2>
+
+<p>This crop is suitable based on soil nutrients and environmental conditions.</p>
+
+<h3 style="margin-top: 30px; color: #4ade80;">🤖 AI Recommendation</h3>
+<div style="text-align:left; margin-top:10px; background: rgba(0,0,0,0.3); padding:20px; border-radius:10px; white-space: pre-wrap; line-height: 1.6; border: 1px solid #22c55e; font-size: 0.95rem; margin-bottom: 20px;">
+    {{ai_advice | safe}}
+</div>
+
+<a href="/crop">
+<button>Try Another Recommendation</button>
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>

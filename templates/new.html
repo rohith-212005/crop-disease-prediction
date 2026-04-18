@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhytoScan — Crop Intelligence</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060a06;
+      --surface: #0c120c;
+      --card: #111811;
+      --border: #1e2d1e;
+      --accent: #4ade80;
+      --accent2: #86efac;
+      --accent-dim: rgba(74, 222, 128, 0.12);
+      --accent-glow: rgba(74, 222, 128, 0.35);
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --text: #e2ffe4;
+      --text-muted: #6b8f6e;
+      --text-dim: #3d5c3f;
+      --mono: 'Syne Mono', monospace;
+      --sans: 'Syne', sans-serif;
+      --body: 'DM Sans', sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #bioCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      z-index: 2;
+      animation: scan 4s linear infinite;
+      opacity: 0.4;
+    }
+
+    @keyframes scan {
+      0% {
+        top: 0
+      }
+
+      100% {
+        top: 100vh
+      }
+    }
+
+    .app {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 0;
+    }
+
+    .logo {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent-glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.7)
+      }
+    }
+
+    .nav-tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 2px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      padding: 64px 0 48px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 48px;
+      align-items: end;
+    }
+
+    .hero-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      line-height: 1.0;
+      letter-spacing: -2px;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 420px;
+      font-weight: 300;
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-dim);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .stat-val {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .upload-zone {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .upload-zone.dragging {
+      border-color: var(--accent);
+      background: rgba(74, 222, 128, 0.04);
+    }
+
+    .upload-zone.has-image {
+      border-style: solid;
+      border-color: var(--border);
+    }
+
+    .upload-inner {
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .upload-icon-wrap {
+      width: 72px;
+      height: 72px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      position: relative;
+    }
+
+    .upload-icon-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid var(--accent-dim);
+      animation: ringpulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes ringpulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: 0.2;
+        transform: scale(1.15)
+      }
+    }
+
+    .upload-title {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    .upload-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
+
+    .upload-btn {
+      background: var(--accent-dim);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      color: var(--accent);
+      padding: 10px 24px;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+
+    .upload-btn:hover {
+      background: rgba(74, 222, 128, 0.2);
+      box-shadow: 0 0 20px rgba(74, 222, 128, 0.15);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .preview-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .preview-wrap img {
+      width: 100%;
+      display: block;
+      max-height: 380px;
+      object-fit: cover;
+    }
+
+    .preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 60%, rgba(6, 10, 6, 0.85));
+    }
+
+    .preview-actions {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .preview-btn {
+      background: rgba(6, 10, 6, 0.85);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preview-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .preview-btn.primary {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      font-weight: bold;
+    }
+
+    .preview-btn.primary:hover {
+      box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+    }
+
+    .corner-tl,
+    .corner-tr,
+    .corner-bl,
+    .corner-br {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .preview-wrap .corner-tl {
+      top: 10px;
+      left: 10px;
+      border-top: 2px solid var(--accent);
+      border-left: 2px solid var(--accent);
+    }
+
+    .preview-wrap .corner-tr {
+      top: 10px;
+      right: 10px;
+      border-top: 2px solid var(--accent);
+      border-right: 2px solid var(--accent);
+    }
+
+    .preview-wrap .corner-bl {
+      bottom: 10px;
+      left: 10px;
+      border-bottom: 2px solid var(--accent);
+      border-left: 2px solid var(--accent);
+    }
+
+    .preview-wrap .corner-br {
+      bottom: 10px;
+      right: 10px;
+      border-bottom: 2px solid var(--accent);
+      border-right: 2px solid var(--accent);
+    }
+
+    .analysis-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .panel-badge {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      padding: 3px 8px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .badge-idle {
+      background: var(--border);
+      color: var(--text-dim);
+    }
+
+    .badge-ready {
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--accent);
+    }
+
+    .badge-warn {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--warn);
+    }
+
+    .badge-danger {
+      background: rgba(248, 113, 113, 0.15);
+      color: var(--danger);
+    }
+
+    .badge-healthy {
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--accent);
+    }
+
+    .result-body {
+      padding: 20px 18px;
+    }
+
+    .disease-name {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      line-height: 1.1;
+    }
+
+    .disease-name.healthy {
+      color: var(--accent);
+    }
+
+    .disease-name.warn {
+      color: var(--warn);
+    }
+
+    .disease-name.danger {
+      color: var(--danger);
+    }
+
+    .disease-crop {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .conf-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .conf-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .conf-fill {
+      height: 100%;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .conf-fill.high {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .conf-fill.mid {
+      background: var(--warn);
+    }
+
+    .conf-fill.low {
+      background: var(--danger);
+    }
+
+    .symptom-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 2px;
+      text-transform: uppercase;
+    }
+
+    .tag-outline {
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .tag-filled {
+      background: var(--accent-dim);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      color: var(--accent);
+    }
+
+    .alt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .alt-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+
+    .alt-rank {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      width: 18px;
+    }
+
+    .alt-name {
+      font-size: 0.82rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .alt-bar {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .alt-bar-fill {
+      height: 100%;
+      background: var(--text-dim);
+      border-radius: 2px;
+      transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .alt-pct {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      width: 32px;
+      text-align: right;
+    }
+
+    .solution-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stab {
+      padding: 10px 16px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .stab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .stab:hover:not(.active) {
+      color: var(--text);
+    }
+
+    .solution-content {
+      padding: 18px;
+    }
+
+    .solution-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .solution-step:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .step-num {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      padding-top: 1px;
+      min-width: 24px;
+    }
+
+    .step-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .step-text strong {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .idle-placeholder {
+      padding: 32px 18px;
+      text-align: center;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      line-height: 2;
+    }
+
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .status-left,
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .status-item {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    .analyzing-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(6, 10, 6, 0.92);
+      z-index: 10;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .analyzing-overlay.active {
+      display: flex;
+    }
+
+    .scan-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .scan-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    .leaf {
+      position: fixed;
+      pointer-events: none;
+      z-index: 3;
+      font-size: 1rem;
+      opacity: 0;
+      animation: leaffall linear infinite;
+    }
+
+    @keyframes leaffall {
+      0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 0
+      }
+
+      10% {
+        opacity: 0.35
+      }
+
+      90% {
+        opacity: 0.15
+      }
+
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0
+      }
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stats {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .stat-card {
+        flex: 1;
+        min-width: 140px;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="bioCanvas"></canvas>
+  <div class="grid-overlay"></div>
+  <div class="scanline"></div>
+  <div id="leaves"></div>
+
+  <div class="app">
+    <nav>
+      <div class="logo">
+        <div class="logo-dot"></div>PhytoScan
+      </div>
+      <div class="nav-tag">v2.4.1 · Model Active</div>
+    </nav>
+
+    <div class="hero">
+      <div>
+        <div class="hero-label">// Crop Intelligence System</div>
+        <h1>Diagnose.<br><span>Protect.</span><br>Harvest.</h1>
+        <p class="hero-sub">Upload a leaf or crop image. Our model identifies disease in under 2 seconds with treatment
+          recommendations tailored to your crop.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-icon">🌿</div>
+          <div>
+            <div class="stat-val">38</div>
+            <div class="stat-lbl">Disease Classes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div>
+            <div class="stat-val">1.8s</div>
+            <div class="stat-lbl">Avg Inference</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div>
+            <div class="stat-val">96.4%</div>
+            <div class="stat-lbl">Accuracy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" accept="image/*">
+          <div class="upload-inner" id="uploadInner">
+            <div class="upload-icon-wrap">🔬</div>
+            <div class="upload-title">Drop crop image here</div>
+            <div class="upload-sub">PNG · JPG · WEBP · max 10MB</div>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">SELECT FILE</button>
+          </div>
+          <div class="preview-wrap" id="previewWrap" style="display:none">
+            <div class="corner-tl"></div>
+            <div class="corner-tr"></div>
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+            <img id="previewImg" src="" alt="Preview">
+            <div class="preview-overlay"></div>
+            <div class="preview-actions">
+              <button class="preview-btn" onclick="resetUpload()">CLEAR</button>
+              <button class="preview-btn primary" onclick="runAnalysis()">▶ ANALYZE</button>
+            </div>
+            <div class="analyzing-overlay" id="analyzingOverlay">
+              <div class="scan-ring"></div>
+              <div class="scan-label">Analyzing...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-panel">
+        <div class="panel-block">
+          <div class="panel-header">
+            <div class="panel-title">// Detection Result</div>
+            <div class="panel-badge badge-idle" id="resultBadge">IDLE</div>
+          </div>
+          <div id="resultBody">
+            <div class="idle-placeholder">Upload an image<br>to begin analysis</div>
+          </div>
+        </div>
+        <div class="panel-block" id="altBlock" style="display:none">
+          <div class="panel-header">
+            <div class="panel-title">// Top Candidates</div>
+          </div>
+          <div style="padding:16px 18px;" id="altBody"></div>
+        </div>
+        <div class="panel-block" id="solutionBlock" style="display:none">
+          <div class="panel-header">
+            <div class="panel-title">// Treatment Protocol</div>
+          </div>
+          <div class="solution-tabs">
+            <div class="stab active" onclick="switchTab('chemical',this)">Chemical</div>
+            <div class="stab" onclick="switchTab('organic',this)">Organic</div>
+            <div class="stab" onclick="switchTab('preventive',this)">Preventive</div>
+          </div>
+          <div class="solution-content" id="solutionContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-item">
+        <div class="status-dot"></div> MODEL ONLINE
+      </div>
+      <div class="status-item">EfficientNet-B4 · PlantVillage</div>
+    </div>
+    <div class="status-right">
+      <div class="status-item" id="statusMsg">READY</div>
+      <div class="status-item">Ambattur, TN</div>
+    </div>
+  </div>
+
+  <script>
+    // CANVAS
+    const canvas = document.getElementById('bioCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    const nodes = [];
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    class Node {
+      constructor() { this.reset(); }
+      reset() { this.x = Math.random() * W; this.y = Math.random() * H; this.vx = (Math.random() - .5) * .3; this.vy = (Math.random() - .5) * .3; this.r = Math.random() * 2.5 + 1; this.pulse = Math.random() * Math.PI * 2; }
+      update() { this.x += this.vx; this.y += this.vy; this.pulse += .02; if (this.x < 0 || this.x > W) this.vx *= -1; if (this.y < 0 || this.y > H) this.vy *= -1; }
+      draw() { const a = .4 + .3 * Math.sin(this.pulse); ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(74,222,128,${a})`; ctx.fill(); }
+    }
+    for (let i = 0; i < 55; i++) nodes.push(new Node());
+    function drawConnections() {
+      for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y, d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 160) { ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.strokeStyle = `rgba(74,222,128,${(1 - d / 160) * .18})`; ctx.lineWidth = .8; ctx.stroke(); }
+      }
+    }
+    (function animCanvas() { ctx.clearRect(0, 0, W, H); nodes.forEach(n => { n.update(); n.draw() }); drawConnections(); requestAnimationFrame(animCanvas); })();
+
+    // LEAVES
+    const leafC = document.getElementById('leaves');
+    const LEAVES = ['🍃', '🌿', '🍀'];
+    function spawnLeaf() { const el = document.createElement('div'); el.className = 'leaf'; el.textContent = LEAVES[Math.floor(Math.random() * 3)]; el.style.left = (Math.random() * 100) + 'vw'; el.style.fontSize = (.6 + Math.random() * .8) + 'rem'; const d = 12 + Math.random() * 18; el.style.animationDuration = d + 's'; el.style.animationDelay = (Math.random() * d) + 's'; leafC.appendChild(el); setTimeout(() => el.remove(), (d + 5) * 1000); }
+    for (let i = 0; i < 18; i++) spawnLeaf(); setInterval(spawnLeaf, 2500);
+
+    // UPLOAD
+    const zone = document.getElementById('uploadZone'), input = document.getElementById('fileInput');
+    const previewWrap = document.getElementById('previewWrap'), previewImg = document.getElementById('previewImg');
+    const uploadInner = document.getElementById('uploadInner');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragging') });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragging'); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) loadFile(f) });
+    input.addEventListener('change', () => { if (input.files[0]) loadFile(input.files[0]) });
+    function loadFile(file) { const r = new FileReader(); r.onload = e => { previewImg.src = e.target.result; uploadInner.style.display = 'none'; previewWrap.style.display = 'block'; zone.classList.add('has-image'); setStatus('IMAGE LOADED · READY TO ANALYZE') }; r.readAsDataURL(file); }
+    function resetUpload() { uploadInner.style.display = ''; previewWrap.style.display = 'none'; previewImg.src = ''; zone.classList.remove('has-image'); input.value = ''; resetResults(); setStatus('READY'); }
+
+    // DATA
+    const diseases = [
+      {
+        name: 'Late Blight', crop: 'TOMATO · SOLANUM LYCOPERSICUM', severity: 'danger', confidence: 94.2, symptoms: ['Dark lesions', 'Water-soaked', 'White mold', 'Wilting'],
+        alts: [{ name: 'Early Blight', pct: 3.8 }, { name: 'Leaf Mold', pct: 1.2 }, { name: 'Healthy', pct: 0.8 }],
+        solutions: {
+          chemical: [{ title: 'Copper Fungicide', desc: '<strong>Apply copper oxychloride</strong> at 2g/L. Spray every 7–10 days. Avoid during rain.' }, { title: 'Systemic Treatment', desc: '<strong>Metalaxyl + Mancozeb</strong> combo at onset of symptoms for best effect.' }, { title: 'Post-Harvest Dip', desc: 'Dip harvested fruits in <strong>0.1% Carbendazim</strong> to prevent storage rot.' }],
+          organic: [{ title: 'Neem Oil Spray', desc: 'Mix <strong>5ml neem oil + 1ml soap</strong> per liter. Apply early morning, weekly.' }, { title: 'Trichoderma Drench', desc: 'Soil drench with <strong>Trichoderma viride</strong> to suppress soilborne spores.' }],
+          preventive: [{ title: 'Resistant Varieties', desc: 'Choose <strong>Pusa Ruby, Arka Vikas</strong> or other blight-resistant tomato cultivars.' }, { title: 'Drip Irrigation', desc: 'Switch to <strong>drip irrigation</strong> to keep foliage dry. Avoid overhead watering.' }]
+        }
+      },
+      {
+        name: 'Healthy Leaf', crop: 'RICE · ORYZA SATIVA', severity: 'healthy', confidence: 98.7, symptoms: ['Normal color', 'No lesions', 'Good turgor', 'Clean veins'],
+        alts: [{ name: 'Bacterial Blight', pct: 0.9 }, { name: 'Blast', pct: 0.3 }, { name: 'Brown Spot', pct: 0.1 }],
+        solutions: {
+          chemical: [{ title: 'Preventive Spray', desc: 'Apply <strong>Propiconazole</strong> prophylactically during high-humidity periods.' }, { title: 'Soil Nutrition', desc: 'Balanced <strong>NPK 17-17-17</strong> at tillering stage for strong immunity.' }],
+          organic: [{ title: 'Silica Amendment', desc: 'Add <strong>rice husk ash</strong> to improve silica uptake and structural strength.' }, { title: 'Compost Tea', desc: 'Weekly foliar spray of <strong>vermicompost tea</strong> to boost beneficial microbiome.' }],
+          preventive: [{ title: 'Water Management', desc: 'Maintain <strong>alternating wet-dry</strong> irrigation to reduce disease pressure.' }, { title: 'Monitoring', desc: 'Inspect fields every <strong>5–7 days</strong> especially at panicle initiation stage.' }]
+        }
+      },
+      {
+        name: 'Powdery Mildew', crop: 'WHEAT · TRITICUM AESTIVUM', severity: 'warn', confidence: 87.5, symptoms: ['White powder', 'Yellowing', 'Stunted growth', 'Distortion'],
+        alts: [{ name: 'Rust Disease', pct: 8.2 }, { name: 'Smut', pct: 2.9 }, { name: 'Healthy', pct: 1.4 }],
+        solutions: {
+          chemical: [{ title: 'Sulfur Dust', desc: '<strong>Wettable sulfur 80% WP</strong> at 2.5g/L. Highly effective against powdery mildew.' }, { title: 'Triazole Group', desc: 'Apply <strong>Tebuconazole or Propiconazole</strong> at first sign of infection.' }],
+          organic: [{ title: 'Baking Soda Spray', desc: '<strong>5g sodium bicarbonate + 2ml oil</strong> per liter changes leaf surface pH.' }, { title: 'Potassium Silicate', desc: 'Foliar spray of <strong>potassium silicate</strong> strengthens cell walls against penetration.' }],
+          preventive: [{ title: 'Spacing', desc: '<strong>Proper plant spacing</strong> of 15–20cm prevents spore transfer between plants.' }, { title: 'Resistant Varieties', desc: 'Grow <strong>PBW 343, HD 2781</strong> or other officially released resistant varieties.' }]
+        }
+      }
+    ];
+
+    let currentResult = null, currentTab = 'chemical';
+    function runAnalysis() {
+      const ov = document.getElementById('analyzingOverlay');
+      ov.classList.add('active'); setStatus('ANALYZING...');
+      setTimeout(() => { ov.classList.remove('active'); const r = diseases[Math.floor(Math.random() * diseases.length)]; currentResult = r; currentTab = 'chemical'; showResult(r); setStatus('COMPLETE · ' + r.confidence + '% CONFIDENCE'); }, 2200);
+    }
+    function showResult(r) {
+      const badge = document.getElementById('resultBadge');
+      badge.className = 'panel-badge badge-' + r.severity;
+      badge.textContent = r.severity === 'healthy' ? 'HEALTHY' : r.severity === 'danger' ? 'CRITICAL' : 'WARNING';
+      const cc = r.confidence >= 90 ? 'high' : r.confidence >= 70 ? 'mid' : 'low';
+      document.getElementById('resultBody').innerHTML = `
+    <div class="result-body">
+      <div class="disease-name ${r.severity}">${r.name}</div>
+      <div class="disease-crop">${r.crop}</div>
+      <div class="conf-label"><span>Confidence</span><span>${r.confidence}%</span></div>
+      <div class="conf-track"><div class="conf-fill ${cc}" id="confFill" style="width:0%"></div></div>
+      <div class="symptom-tags">${r.symptoms.map((s, i) => `<div class="tag ${i < 2 ? 'tag-filled' : 'tag-outline'}">${s}</div>`).join('')}</div>
+    </div>`;
+      setTimeout(() => { const f = document.getElementById('confFill'); if (f) f.style.width = r.confidence + '%' }, 100);
+      document.getElementById('altBlock').style.display = 'block';
+      document.getElementById('altBody').innerHTML = `<div class="alt-list">${r.alts.map((a, i) => `<div class="alt-item"><div class="alt-rank">${String(i + 1).padStart(2, '0')}</div><div class="alt-name">${a.name}</div><div class="alt-bar"><div class="alt-bar-fill" data-pct="${a.pct}" style="width:0%"></div></div><div class="alt-pct">${a.pct}%</div></div>`).join('')}</div>`;
+      setTimeout(() => document.querySelectorAll('.alt-bar-fill').forEach(el => el.style.width = el.dataset.pct + '%'), 200);
+      document.getElementById('solutionBlock').style.display = 'block';
+      renderSolution(r, 'chemical');
+      document.querySelectorAll('.stab').forEach((t, i) => t.classList.toggle('active', i === 0));
+    }
+    function renderSolution(r, tab) {
+      document.getElementById('solutionContent').innerHTML = r.solutions[tab].map((s, i) => `<div class="solution-step"><div class="step-num">0${i + 1}</div><div class="step-text"><strong>${s.title}:</strong> ${s.desc}</div></div>`).join('');
+    }
+    function switchTab(tab, el) {
+      currentTab = tab;
+      document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      if (currentResult) renderSolution(currentResult, tab);
+    }
+    function resetResults() {
+      document.getElementById('resultBadge').className = 'panel-badge badge-idle';
+      document.getElementById('resultBadge').textContent = 'IDLE';
+      document.getElementById('resultBody').innerHTML = '<div class="idle-placeholder">Upload an image<br>to begin analysis</div>';
+      document.getElementById('altBlock').style.display = 'none';
+      document.getElementById('solutionBlock').style.display = 'none';
+      currentResult = null;
+    }
+    function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
+  </script>
+</body>
+
+</html>

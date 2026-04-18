@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Prediction Result</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+background: linear-gradient(135deg, #020617 0%, #081c15 100%);
+color: white;
+font-family:'Poppins',sans-serif;
+text-align:center;
+min-height: 100vh;
+margin: 0;
+}
+
+nav {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 60px;
+    background: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky; top: 0; z-index: 100;
+}
+.logo { font-size:24px; font-weight:600; color:#4ade80; text-decoration:none; }
+nav ul { display:flex; gap:30px; list-style:none; align-items: center; margin:0; padding:0;}
+nav a { color:#e2e8f0; text-decoration:none; transition: color 0.3s; font-weight: 400; }
+nav a:hover { color:#4ade80; }
+.active { color:#4ade80; font-weight: 600; }
+.login-btn { background:#22c55e; padding:8px 20px; border-radius:25px; color:#0f172a; font-weight: 600; transition: background 0.3s, transform 0.2s; }
+.login-btn:hover { background:#16a34a; color: white; transform: translateY(-2px); }
+
+.content-wrapper { padding-top: 40px; }
+
+.result-card{
+background: rgba(255, 255, 255, 0.03);
+border: 1px solid rgba(255, 255, 255, 0.05);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+padding:40px;
+border-radius:20px;
+display:inline-block;
+max-width: 800px;
+}
+
+.result-card img{
+width:250px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+a{
+display:inline-block;
+margin-top:20px;
+padding:10px 20px;
+background:#22c55e;
+color:white;
+text-decoration:none;
+border-radius:20px;
+}
+
+/* LANGUAGE */
+
+.language{
+text-align:right;
+padding:10px 60px;
+}
+
+select{
+padding:6px 10px;
+border-radius:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+    <a href="/" class="logo">🌿 PhytoScan</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/crop">Crop Planner</a></li>
+        <!-- MARKET PRICE FEATURE START -->
+        <li><a href="/market">Market Price</a></li>
+        <!-- MARKET PRICE FEATURE END -->
+        <li><a href="/store">Store</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a class="login-btn" href="/login">Login</a></li>
+    </ul>
+</nav>
+
+<div class="content-wrapper">
+<div class="language">
+<select onchange="changeLanguage(this.value)">
+<option value="en">English</option>
+<option value="hi">Hindi</option>
+<option value="te">Telugu</option>
+<option value="ta">Tamil</option>
+</select>
+</div>
+
+
+<h1 id="resultTitle">Crop Disease Detection Result</h1>
+
+<div class="result-card">
+
+<img src="{{image_path}}" alt="Leaf Image">
+
+<h2>Disease: {{result}}</h2>
+
+<h3>Confidence: {{confidence}}%</h3>
+
+<h3 id="treatmentText">Treatment Suggestion</h3>
+<p>{{treatment}}</p>
+
+
+<h3 id="aiText" style="margin-top: 30px;">🤖 AI Recommendation</h3>
+<div style="text-align:left; margin-top:10px; background:#081c15; padding:20px; border-radius:10px; white-space: pre-wrap; line-height: 1.6; border: 1px solid #22c55e; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.1);">
+    {{ai_advice | safe}}
+</div>
+
+{% if supplement_name %}
+<div class="supplement-section" style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px;">
+    <h3 id="supplementsText" style="color: #4ade80; font-size: 1.4rem; margin-bottom: 20px;">📦 Recommended Supplements</h3>
+    
+    <div class="supplement-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 15px; padding: 25px; display: flex; flex-direction: column; align-items: center; gap: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+        <div style="background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; width: 220px; height: 220px;">
+            <img src="{{supplement_image}}" alt="{{supplement_name}}" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px;">
+        </div>
+        
+        <div style="text-align: center;">
+            <h4 style="margin: 0; font-size: 1.2rem; line-height: 1.4; color: #f8fafc;">{{supplement_name}}</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 8px;">Specially selected for {{result}}</p>
+            
+            <a href="{{buy_link}}" target="_blank" style="margin-top: 20px; display: inline-block; background: #22c55e; color: #0f172a; font-weight: 600; padding: 12px 30px; border-radius: 30px; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);">
+                Buy Product
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<a href="/" style="background:#22c55e; transition: background 0.3s; margin-top: 40px;">Upload Another Image</a>
+
+</div>
+</div>
+
+
+<script>
+
+const translations = {
+
+en:{
+title:"Detect Crop Diseases Instantly",
+subtitle:"Upload a leaf image and our AI will identify the disease.",
+upload:"Upload Leaf Image",
+analyze:"Analyze",
+result:"Crop Disease Detection Result",
+treatment:"Treatment Suggestion",
+ai:"AI Recommendation",
+cropTitle:"Advanced Crop Planner",
+cropBtn:"Get Crop Suggestion",
+recommended:"Recommended Crop"
+},
+
+hi:{
+title:"फसल रोग तुरंत पहचानें",
+subtitle:"पत्ती की तस्वीर अपलोड करें और हमारा AI रोग बताएगा",
+upload:"पत्ती की छवि अपलोड करें",
+analyze:"विश्लेषण करें",
+result:"फसल रोग परिणाम",
+treatment:"उपचार सुझाव",
+ai:"एआई सिफारिश",
+cropTitle:"फसल योजना प्रणाली",
+cropBtn:"फसल सुझाव प्राप्त करें",
+recommended:"अनुशंसित फसल"
+},
+
+te:{
+title:"పంట వ్యాధులను వెంటనే గుర్తించండి",
+subtitle:"ఆకు చిత్రాన్ని అప్లోడ్ చేయండి, AI వ్యాధిని గుర్తిస్తుంది",
+upload:"ఆకు చిత్రాన్ని అప్లోడ్ చేయండి",
+analyze:"విశ్లేషించండి",
+result:"పంట వ్యాధి ఫలితం",
+treatment:"చికిత్స సూచనలు",
+ai:"AI సూచనలు",
+cropTitle:"పంట ప్రణాళిక వ్యవస్థ",
+cropBtn:"పంట సూచన పొందండి",
+recommended:"సిఫార్సు చేసిన పంట"
+},
+
+ta:{
+title:"பயிர் நோய்களை உடனே கண்டறியவும்",
+subtitle:"இலை படத்தை பதிவேற்றவும், AI நோயை கண்டறியும்",
+upload:"இலை படத்தை பதிவேற்றவும்",
+analyze:"பகுப்பாய்வு",
+result:"பயிர் நோய் முடிவு",
+treatment:"சிகிச்சை பரிந்துரை",
+ai:"AI பரிந்துரை",
+cropTitle:"பயிர் திட்ட அமைப்பு",
+cropBtn:"பயிர் பரிந்துரை பெறவும்",
+recommended:"பரிந்துரைக்கப்பட்ட பயிர்"
+}
+
+};
+
+
+function changeLanguage(lang){
+    localStorage.setItem("lang", lang);
+    applyLanguage(lang);
+}
+
+
+function applyLanguage(lang){
+
+    const t = translations[lang];
+
+    if(!t) return;
+
+    if(document.getElementById("title"))
+        document.getElementById("title").innerText = t.title;
+
+    if(document.getElementById("subtitle"))
+        document.getElementById("subtitle").innerText = t.subtitle;
+
+    if(document.getElementById("uploadText"))
+        document.getElementById("uploadText").innerText = t.upload;
+
+    if(document.getElementById("analyzeBtn"))
+        document.getElementById("analyzeBtn").innerText = t.analyze;
+
+    if(document.getElementById("resultTitle"))
+        document.getElementById("resultTitle").innerText = t.result;
+
+    if(document.getElementById("treatmentText"))
+        document.getElementById("treatmentText").innerText = t.treatment;
+
+    if(document.getElementById("aiText"))
+        document.getElementById("aiText").innerText = t.ai;
+
+    if(document.getElementById("cropTitle"))
+        document.getElementById("cropTitle").innerText = t.cropTitle;
+
+    if(document.getElementById("cropBtn"))
+        document.getElementById("cropBtn").innerText = t.cropBtn;
+
+    if(document.getElementById("recommendedText"))
+        document.getElementById("recommendedText").innerText = t.recommended;
+}
+
+
+window.onload = function(){
+
+    const lang = localStorage.getItem("lang") || "en";
+
+    applyLanguage(lang);
+
+    
+    const select = document.getElementById("langSelect");
+    if(select){
+        select.value = lang;
+    }
+};
+
+</script>
+
+</body>
+</html>

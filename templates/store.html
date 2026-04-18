@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhytoScan - Supplements Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body {
+    background: linear-gradient(135deg, #020617 0%, #081c15 100%);
+    color: white;
+    min-height: 100vh;
+}
+nav {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 60px;
+    background: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky; top: 0; z-index: 100;
+}
+.logo { font-size:24px; font-weight:600; color:#4ade80; text-decoration:none; }
+nav ul { display:flex; gap:30px; list-style:none; align-items: center; }
+nav a { color:#e2e8f0; text-decoration:none; transition: color 0.3s; font-weight: 400; }
+nav a:hover { color:#4ade80; }
+.active { color:#4ade80; font-weight: 600; }
+.login-btn { background:#22c55e; padding:8px 20px; border-radius:25px; color:#0f172a; font-weight: 600; transition: background 0.3s, transform 0.2s; }
+.login-btn:hover { background:#16a34a; color: white; transform: translateY(-2px); }
+
+.store-container {
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+.header { text-align: center; margin-bottom: 50px; }
+.header h1 { font-size: 42px; color: #4ade80; margin-bottom: 15px; }
+.header p { color: #94a3b8; font-size: 18px; }
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.product-image {
+    width: 100%;
+    height: 180px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+}
+
+.product-name { font-size: 22px; font-weight: 600; margin-bottom: 10px; color: white; }
+.product-desc { color: #94a3b8; font-size: 14px; margin-bottom: 20px; line-height: 1.5; flex-grow: 1; }
+.product-price { font-size: 24px; font-weight: 600; color: #4ade80; margin-bottom: 20px; }
+
+.buy-btn {
+    background: #22c55e;
+    color: #0f172a;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.buy-btn:hover { background: #16a34a; color: white; }
+
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">🌿 PhytoScan</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/crop">Crop Planner</a></li>
+        <!-- MARKET PRICE FEATURE START -->
+        <li><a href="/market">Market Price</a></li>
+        <!-- MARKET PRICE FEATURE END -->
+        <li><a href="/store" class="active">Store</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a class="login-btn" href="/login">Login</a></li>
+    </ul>
+</nav>
+
+<div class="store-container">
+    <div class="header">
+        <h1>Supplements & Fertilizers</h1>
+        <p>Premium agricultural products to protect and boost your crop yield.</p>
+    </div>
+
+    <div class="products-grid">
+        <!-- Product 1 -->
+        <div class="product-card">
+            <div class="product-image">🧴</div>
+            <div class="product-name">Organic Copper Fungicide</div>
+            <div class="product-desc">Highly effective against Late Blight and Early Blight. Safe for organic farming.</div>
+            <div class="product-price">₹450</div>
+            <a href="https://www.amazon.in/s?k=organic+copper+fungicide" target="_blank" class="buy-btn">Buy Now on Amazon</a>
+        </div>
+        
+        <!-- Product 2 -->
+        <div class="product-card">
+            <div class="product-image">🌱</div>
+            <div class="product-name">Neem Oil Extract</div>
+            <div class="product-desc">Natural pesticide that controls insects which vector the Mosaic Virus.</div>
+            <div class="product-price">₹299</div>
+            <a href="https://www.amazon.in/s?k=neem+oil+for+plants" target="_blank" class="buy-btn">Buy Now on Amazon</a>
+        </div>
+
+        <!-- Product 3 -->
+        <div class="product-card">
+            <div class="product-image">🧪</div>
+            <div class="product-name">Mancozeb 75% WP</div>
+            <div class="product-desc">Broad-spectrum contact fungicide used to prevent a wide variety of plant diseases.</div>
+            <div class="product-price">₹380</div>
+            <a href="https://www.amazon.in/s?k=mancozeb+fungicide" target="_blank" class="buy-btn">Buy Now on Amazon</a>
+        </div>
+        
+        <!-- Product 4 -->
+        <div class="product-card">
+            <div class="product-image">🌾</div>
+            <div class="product-name">NPK 19:19:19 Fertilizer</div>
+            <div class="product-desc">Water-soluble fertilizer providing balanced nutrients for healthy crop growth.</div>
+            <div class="product-price">₹250</div>
+            <a href="https://www.amazon.in/s?k=npk+19+19+19+fertilizer" target="_blank" class="buy-btn">Buy Now on Amazon</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

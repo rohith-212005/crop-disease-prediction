@@ -1,0 +1,47 @@
+body{
+font-family: Arial;
+text-align:center;
+background:#f2f2f2;
+}
+
+h1{
+color:green;
+margin-top:50px;
+}
+
+form{
+margin-top:40px;
+}
+
+button{
+padding:10px 20px;
+background:green;
+color:white;
+border:none;
+cursor:pointer;
+font-size:16px;
+}
+
+/* Crop planner form */
+
+.upload-box input,
+.upload-box textarea{
+width:100%;
+padding:10px;
+margin-top:8px;
+margin-bottom:15px;
+border-radius:8px;
+border:none;
+}
+
+/* Result card */
+
+.result-card{
+background:#0b2e1f;
+padding:30px;
+border-radius:20px;
+text-align:center;
+width:420px;
+margin:auto;
+margin-top:40px;
+}
